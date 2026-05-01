@@ -37,11 +37,45 @@ class Linear_soft(nn.Module): # Defining linear model architecture
     def forward(self,x):
         x = self.layer(x) # We'll apply softmax later in our model, you'll see
         return x
+
+class MultiLayer_soft1(nn.Module): # Defining multi-layer model architecture with 1 hidden layer
+    def __init__(self):
+        super().__init__()
+        self.l1 = nn.Linear(784,100) # 100 neurons choice because multiple of number of class, and allows more fine graining while reducing a bit the size of our network
+        self.out_layer = nn.Linear(100,10)
+        self.relu = nn.ReLU() # ReLU is according to course of the most used activation function, so why not ?
+
+    def forward(self,x):
+        x = self.relu(self.l1(x))
+        x = self.out_layer(x)
+        return x
+    
+class MultiLayer_soft2(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.l1 = nn.Linear(784,100)
+        self.l2 = nn.Linear(100,100)
+        self.out_layer = nn.Linear(100,10)
+        self.relu = nn.ReLU() # ReLU is according to course of the most used activation function, so why not ?
+
+    def forward(self,x):
+        x = self.relu(self.l1(x))
+        x = self.relu(self.l2(x))
+        x = self.out_layer(x)
+        return x
+
     
 LS = Linear_soft()
 criterion = nn.CrossEntropyLoss() # Cross entropy loss including softmaxxing !
 optimizer = optim.SGD(LS.parameters(), lr=0.1) # The built in optimizer with the model parameters and learning rate to speed up the process
 
+MLS1 = MultiLayer_soft1()
+criter1 = nn.CrossEntropyLoss() # Reasons : 1) Other loss functions flattent the tensor like huber loss, not adapted for multi class classification 2) softmax included already 3) accurate same condition comparison for our study between linear and several layers models
+opt1 = optim.SGD(MLS1.parameters(), lr=0.1)
+
+MLS2 = MultiLayer_soft2()
+criter2 = nn.CrossEntropyLoss()
+opt2 = optim.SGD(MLS2.parameters(), lr=0.1)
 
 train_dataset = TensorDataset( # Making our datasets time
     torch.tensor(X_train),
@@ -64,6 +98,8 @@ LS.layer.weight.data = torch.tensor(coeff)
 LS.layer.bias.data = torch.tensor(biais)""" # legacy manual code
 
 summary(LS, input_size=(784,)) # Displays summary to be sure of what we do
+summary(MLS1, input_size=(784,))
+summary(MLS2, input_size=(784,))
 
 epochs = 5
 
@@ -80,7 +116,37 @@ for epoch in range(epochs):
 
         total_loss += loss.item()
 
-    print(f"Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
+    print(f"Linear System @ Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
+
+for epoch in range(epochs):
+    MLS1.train()
+    total_loss = 0.0
+
+    for images, labels in train_loader:
+        opt1.zero_grad() # Resets the stored gradients we obtained at last iteration
+        outputs = MLS1(images) # Applies model to our training dataset
+        loss = criter1(outputs, labels) # Calculates huber loss
+        loss.backward() # Calculates huber gradient, does not do backward propagation !
+        opt1.step() # Applies the gradient descent
+
+        total_loss += loss.item()
+
+    print(f"Multi Layer with 1 hidden System @ Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
+
+for epoch in range(epochs):
+    MLS2.train()
+    total_loss = 0.0
+
+    for images, labels in train_loader:
+        opt2.zero_grad() # Resets the stored gradients we obtained at last iteration
+        outputs = MLS2(images) # Applies model to our training dataset
+        loss = criter2(outputs, labels) # Calculates huber loss
+        loss.backward() # Calculates huber gradient, does not do backward propagation !
+        opt2.step() # Applies the gradient descent
+
+        total_loss += loss.item()
+
+    print(f"Multi Layer with 2 hidden System @ Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
 
 """entree = torch.tensor(mnist_data[0], dtype=torch.float32)
 exit = LS(entree)
@@ -138,13 +204,81 @@ for i in range(0,len(predicted)):
 
 print(prediction_errors)
 
+plt.figure(0) # Create separate window for each figure
 fig, axs = plt.subplots(1,2)
 axs[0].bar([0,1,2,3,4,5,6,7,8,9], prediction_errors)
-axs[0].set_title("Misattribution of label following the true nature of a number")
+axs[0].set_title("Misattribution of label following the true nature of a number [LS]")
 axs[0].set_xlabel("True Class")
 axs[0].set_ylabel("Amount of misattributed labels")
 axs[1].pie([len(wrong_ones), 10000-len(wrong_ones)], labels=["Errors", "Correct guesses"], autopct= lambda pct: func(pct, [len(wrong_ones), 10000-len(wrong_ones)]))
-axs[1].set_title("Error proportion Chart")
+axs[1].set_title("Error proportion Chart [LS]")
+# plt.show()
+
+# Test time for Multi layer with 1 hidden
+
+MLS1.eval() # We go into test mode
+predicted = []
+true_labels = []
+
+with torch.no_grad():
+    for images, labels in test_loader:
+        outputs = MLS1(images) # Make the inputs go through the model
+        preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
+        predicted.extend(preds.numpy()) # Add predictions to our list
+        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+
+
+prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+wrong_ones_mls1 = [] # Stores the images seen as wrong, to project them later
+for i in range(0,len(predicted)):
+    if predicted[i] != mnist_label[i+60000]:
+        prediction_errors[int(mnist_label[i+60000])] += 1
+        wrong_ones_mls1.append(mnist_data[i+60000])
+
+print(prediction_errors)
+
+plt.figure(1)
+fig, axs = plt.subplots(1,2)
+axs[0].bar([0,1,2,3,4,5,6,7,8,9], prediction_errors)
+axs[0].set_title("Misattribution of label following the true nature of a number [MLS1]")
+axs[0].set_xlabel("True Class")
+axs[0].set_ylabel("Amount of misattributed labels")
+axs[1].pie([len(wrong_ones_mls1), 10000-len(wrong_ones_mls1)], labels=["Errors", "Correct guesses"], autopct= lambda pct: func(pct, [len(wrong_ones), 10000-len(wrong_ones)]))
+axs[1].set_title("Error proportion Chart [MLS1]")
+# plt.show()
+
+# MLS2 test
+
+MLS2.eval() # We go into test mode
+predicted = []
+true_labels = []
+
+with torch.no_grad():
+    for images, labels in test_loader:
+        outputs = MLS2(images) # Make the inputs go through the model
+        preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
+        predicted.extend(preds.numpy()) # Add predictions to our list
+        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+
+
+prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+wrong_ones_mls2 = [] # Stores the images seen as wrong, to project them later
+for i in range(0,len(predicted)):
+    if predicted[i] != mnist_label[i+60000]:
+        prediction_errors[int(mnist_label[i+60000])] += 1
+        wrong_ones_mls2.append(mnist_data[i+60000])
+
+print(prediction_errors)
+
+plt.figure(2)
+fig, axs = plt.subplots(1,2)
+axs[0].bar([0,1,2,3,4,5,6,7,8,9], prediction_errors)
+axs[0].set_title("Misattribution of label following the true nature of a number [MLS2]")
+axs[0].set_xlabel("True Class")
+axs[0].set_ylabel("Amount of misattributed labels")
+axs[1].pie([len(wrong_ones_mls2), 10000-len(wrong_ones_mls2)], labels=["Errors", "Correct guesses"], autopct= lambda pct: func(pct, [len(wrong_ones), 10000-len(wrong_ones)]))
+axs[1].set_title("Error proportion Chart [MLS2]")
 plt.show()
-# générer un pyplot qui montre chiffres fautifs au choix ?
-# try training with different number of epochs
+# Do comparison if wrong ones are identical between models
+# Add graph that illustrate loss progression instead of just printing it ?
+# print the damn numbers
