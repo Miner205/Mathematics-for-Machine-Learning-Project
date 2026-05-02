@@ -102,6 +102,7 @@ summary(MLS1, input_size=(784,))
 summary(MLS2, input_size=(784,))
 
 epochs = 5
+losses = [[],[],[]]
 
 for epoch in range(epochs):
     LS.train()
@@ -116,6 +117,7 @@ for epoch in range(epochs):
 
         total_loss += loss.item()
 
+    losses[0].append(total_loss)
     print(f"Linear System @ Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
 
 for epoch in range(epochs):
@@ -131,6 +133,7 @@ for epoch in range(epochs):
 
         total_loss += loss.item()
 
+    losses[1].append(total_loss)
     print(f"Multi Layer with 1 hidden System @ Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
 
 for epoch in range(epochs):
@@ -146,6 +149,7 @@ for epoch in range(epochs):
 
         total_loss += loss.item()
 
+    losses[2].append(total_loss)
     print(f"Multi Layer with 2 hidden System @ Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
 
 """entree = torch.tensor(mnist_data[0], dtype=torch.float32)
@@ -278,6 +282,44 @@ axs[0].set_xlabel("True Class")
 axs[0].set_ylabel("Amount of misattributed labels")
 axs[1].pie([len(wrong_ones_mls2), 10000-len(wrong_ones_mls2)], labels=["Errors", "Correct guesses"], autopct= lambda pct: func(pct, [len(wrong_ones), 10000-len(wrong_ones)]))
 axs[1].set_title("Error proportion Chart [MLS2]")
+
+# Doing more graphs here for the studies
+
+# comparing similarities between falsely labeled ones
+
+mls1_ls_count = 0
+mls2_ls_count = 0
+print(type(wrong_ones))
+print(type(wrong_ones_mls1))
+print(type(wrong_ones_mls2))
+print(type(wrong_ones[0]))
+print(type(wrong_ones_mls1[0]))
+print(type(wrong_ones_mls2[0]))
+for elem in wrong_ones:
+    if any(np.array_equal(elem, x) for x in wrong_ones_mls1):
+        mls1_ls_count += 1
+    if any(np.array_equal(elem, x) for x in wrong_ones_mls2):
+        mls2_ls_count += 1
+
+mls1_ls_count /= len(wrong_ones) # Get a proportion relatives to the length of LS incorrect predictions, for better understanding
+mls2_ls_count /= len(wrong_ones)
+
+plt.figure(3)
+fig, axs = plt.subplots(1,2) # Loss progression for each combined in one graph + wrong ones similarities
+axs[0].plot(np.arange(0,epochs,1), losses[0], linestyle="dashdot", color="blue", marker="+")
+axs[0].plot(np.arange(0,epochs,1), losses[1], linestyle="dashdot", color="green", marker="+")
+axs[0].plot(np.arange(0,epochs,1), losses[2], linestyle="dashdot", color="red", marker="+")
+axs[0].set_title("Loss progression during epochs")
+axs[0].set_ylabel("Total loss (u.a.)")
+axs[0].set_xlabel("Epoch number")
+axs[0].legend(["LS", "MLS1", "MLS2"])
+axs[0].set_xticks(np.arange(0,epochs,1)) # Show every epoch in x axis
+axs[1].bar(np.arange(0,len(["MultiLayer Softmax 1", "MultiLayer Softmax 2"])) - 0.35/2, [mls1_ls_count, mls2_ls_count], width=0.4)
+axs[1].bar(np.arange(0,len(["MultiLayer Softmax 1", "MultiLayer Softmax 2"])) + 0.35/2, [len(wrong_ones_mls1)/len(wrong_ones), len(wrong_ones_mls2)/len(wrong_ones)], color="olivedrab", width=0.4) # Adds in comparison length of wrong ones array to LS wrong ones to make a relative comparison
+axs[1].set_xticks(np.arange(0,len(["MultiLayer Softmax 1", "MultiLayer Softmax 2"])), ["MultiLayer Softmax 1", "MultiLayer Softmax 2"])
+axs[1].legend(["Similar incorrect predictions", "Size of incorrect predictions array"])
+axs[1].set_title("Proportion of incorrect predictions of Linear System similar to other models")
+axs[1].set_ylim(0,1)
 plt.show()
 # Do comparison if wrong ones are identical between models
 # Add graph that illustrate loss progression instead of just printing it ?
