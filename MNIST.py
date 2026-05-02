@@ -6,6 +6,28 @@ from torchsummary import summary
 from scipy.io import loadmat
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
+from random import randint
+
+
+def display_images(images, indices,  global_title, labels, labi, colonnes=5): # This will be useful later to print the wrong predictions
+    n = len(indices)
+    lignes = (n + colonnes - 1) // colonnes
+
+    plt.figure(figsize=(2 * colonnes, 2 * lignes))
+    plt.suptitle(global_title)
+
+    for i, idx in enumerate(indices):
+        image_784 = images[idx]
+        image_28x28 = np.array(image_784).reshape(28, 28) # turns image into a proper 28x28 list of list
+
+        plt.subplot(lignes, colonnes, i + 1)
+        plt.imshow(image_28x28, cmap="gray_r")
+        plt.title(f"Image {idx}; predicted {labels[0][labi][idx]}; true {labels[1][labi][idx]}")
+        plt.axis("off")
+
+    plt.tight_layout()
+    plt.show()
+
 
 torch.manual_seed(0)
 np.random.seed(0) # Sets parameters of those modules with the same random seed to ensure reproductibility
@@ -201,10 +223,14 @@ with torch.no_grad():
 
 prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
 wrong_ones = [] # Stores the images seen as wrong, to project them later
+wo_true = [[],[],[]] # Stores true label for each wrong prediction
+wo_false = [[],[],[]] # Same but with predicted
 for i in range(0,len(predicted)):
     if predicted[i] != mnist_label[i+60000]:
         prediction_errors[int(mnist_label[i+60000])] += 1
         wrong_ones.append(mnist_data[i+60000])
+        wo_true[0].append(mnist_label[i+60000])
+        wo_false[0].append(predicted[i])
 
 print(prediction_errors)
 
@@ -238,6 +264,8 @@ for i in range(0,len(predicted)):
     if predicted[i] != mnist_label[i+60000]:
         prediction_errors[int(mnist_label[i+60000])] += 1
         wrong_ones_mls1.append(mnist_data[i+60000])
+        wo_true[1].append(mnist_label[i+60000])
+        wo_false[1].append(predicted[i])
 
 print(prediction_errors)
 
@@ -271,6 +299,8 @@ for i in range(0,len(predicted)):
     if predicted[i] != mnist_label[i+60000]:
         prediction_errors[int(mnist_label[i+60000])] += 1
         wrong_ones_mls2.append(mnist_data[i+60000])
+        wo_true[2].append(mnist_label[i+60000])
+        wo_false[2].append(predicted[i])
 
 print(prediction_errors)
 
@@ -321,6 +351,12 @@ axs[1].legend(["Similar incorrect predictions", "Size of incorrect predictions a
 axs[1].set_title("Proportion of incorrect predictions of Linear System similar to other models")
 axs[1].set_ylim(0,1)
 plt.show()
-# Do comparison if wrong ones are identical between models
-# Add graph that illustrate loss progression instead of just printing it ?
+
+random_indexes = [randint(0, len(wrong_ones)) for _ in range(25)] # 25 random indexes to just have a glance, but not too much else matplotlib displays a mess
+display_images(wrong_ones, random_indexes, "Selected random sample of wrong predictions from LS model", [wo_false, wo_true], 0)
+random_indexes = [randint(0, len(wrong_ones_mls1)) for _ in range(25)]
+display_images(wrong_ones_mls1, random_indexes, "Selected random sample of wrong predictions from MLS1 model", [wo_false, wo_true], 1)
+random_indexes = [randint(0, len(wrong_ones_mls2)) for _ in range(25)]
+display_images(wrong_ones_mls2, random_indexes, "Selected random sample of wrong predictions from MLS2 model", [wo_false, wo_true], 2)
+
 # print the damn numbers
