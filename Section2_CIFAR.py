@@ -8,9 +8,8 @@ from torch.utils.data import DataLoader
 torch.manual_seed(0)
 np.random.seed(0)
 
-# ==========================================
 # 1. CUSTOM DATA PREPROCESSORS
-# ==========================================
+
 class GrayscaleFlattenTransform:
     def __call__(self, img_tensor):
         r, g, b = img_tensor[0], img_tensor[1], img_tensor[2]
@@ -21,9 +20,9 @@ class ColorFlattenTransform:
     def __call__(self, img_tensor):
         return img_tensor.view(-1)
 
-# ==========================================
+
 # 2. ARCHITECTURES
-# ==========================================
+
 class Linear_CIFAR_Gray(nn.Module):
     def __init__(self):
         super().__init__()
@@ -67,9 +66,9 @@ class CIFAR_CNN(nn.Module):
         x = self.densification(x)
         return x
 
-# ==========================================
+
 # 3. TRAINING & TESTING LOOPS
-# ==========================================
+
 def train_model(model, train_loader, epochs=5):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.01)
@@ -100,12 +99,11 @@ def test_model(model, test_loader):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
     accuracy = 100 * correct / total
-    print(f"  => 🎯 VERIFICATION: Accuracy on Test Images: {accuracy:.2f}%\n")
+    print(f"  => VERIFICATION: Accuracy on Test Images: {accuracy:.2f}%\n")
     return accuracy
 
-# ==========================================
 # 4. MAIN EXECUTION
-# ==========================================
+
 if __name__ == "__main__":
     
     transform_gray = transforms.Compose([transforms.Resize((32, 32)), transforms.ToTensor(), GrayscaleFlattenTransform()])
