@@ -124,7 +124,7 @@ summary(MLS1, input_size=(784,))
 summary(MLS2, input_size=(784,))
 
 epochs = 5
-losses = [[],[],[]]
+losses = [[],[],[],[],[],[],[]]
 
 for epoch in range(epochs):
     LS.train()
@@ -223,8 +223,8 @@ with torch.no_grad():
 
 prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
 wrong_ones = [] # Stores the images seen as wrong, to project them later
-wo_true = [[],[],[]] # Stores true label for each wrong prediction
-wo_false = [[],[],[]] # Same but with predicted
+wo_true = [[],[],[],[],[],[],[]] # Stores true label for each wrong prediction
+wo_false = [[],[],[],[],[],[],[]] # Same but with predicted
 for i in range(0,len(predicted)):
     if predicted[i] != mnist_label[i+60000]:
         prediction_errors[int(mnist_label[i+60000])] += 1
@@ -359,4 +359,293 @@ display_images(wrong_ones_mls1, random_indexes, "Selected random sample of wrong
 random_indexes = [randint(0, len(wrong_ones_mls2)) for _ in range(25)]
 display_images(wrong_ones_mls2, random_indexes, "Selected random sample of wrong predictions from MLS2 model", [wo_false, wo_true], 2)
 
-# print the damn numbers
+# Layer nb study
+print("Doing the multilayer study")
+
+class MultiLayer_soft3(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.l1 = nn.Linear(784,100)
+        self.l2 = nn.Linear(100,100)
+        self.l3 = nn.Linear(100,100)
+        self.out_layer = nn.Linear(100,10)
+        self.relu = nn.ReLU()
+
+    def forward(self,x):
+        x = self.relu(self.l1(x))
+        x = self.relu(self.l2(x))
+        x = self.relu(self.l3(x))
+        x = self.out_layer(x)
+        return x
+    
+class MultiLayer_soft4(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.l1 = nn.Linear(784,100)
+        self.l2 = nn.Linear(100,100)
+        self.l3 = nn.Linear(100,100)
+        self.l4 = nn.Linear(100,100)
+        self.out_layer = nn.Linear(100,10)
+        self.relu = nn.ReLU()
+
+    def forward(self,x):
+        x = self.relu(self.l1(x))
+        x = self.relu(self.l2(x))
+        x = self.relu(self.l3(x))
+        x = self.relu(self.l4(x))
+        x = self.out_layer(x)
+        return x
+    
+class MultiLayer_soft5(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.l1 = nn.Linear(784,100)
+        self.l2 = nn.Linear(100,100)
+        self.l3 = nn.Linear(100,100)
+        self.l4 = nn.Linear(100,100)
+        self.l5 = nn.Linear(100,100)
+        self.out_layer = nn.Linear(100,10)
+        self.relu = nn.ReLU()
+
+    def forward(self,x):
+        x = self.relu(self.l1(x))
+        x = self.relu(self.l2(x))
+        x = self.relu(self.l3(x))
+        x = self.relu(self.l4(x))
+        x = self.relu(self.l5(x))
+        x = self.out_layer(x)
+        return x
+    
+class MultiLayer_soft10(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.l1 = nn.Linear(784,100)
+        self.l2 = nn.Linear(100,100)
+        self.l3 = nn.Linear(100,100)
+        self.l4 = nn.Linear(100,100)
+        self.l5 = nn.Linear(100,100)
+        self.l6 = nn.Linear(100,100)
+        self.l7 = nn.Linear(100,100)
+        self.l8 = nn.Linear(100,100)
+        self.l9 = nn.Linear(100,100)
+        self.l10 = nn.Linear(100,100)
+        self.out_layer = nn.Linear(100,10)
+        self.relu = nn.ReLU()
+
+    def forward(self,x):
+        x = self.relu(self.l1(x))
+        x = self.relu(self.l2(x))
+        x = self.relu(self.l3(x))
+        x = self.relu(self.l4(x))
+        x = self.relu(self.l5(x))
+        x = self.relu(self.l6(x))
+        x = self.relu(self.l7(x))
+        x = self.relu(self.l8(x))
+        x = self.relu(self.l9(x))
+        x = self.relu(self.l10(x))
+        x = self.out_layer(x)
+        return x
+    
+MLS3 = MultiLayer_soft3()
+criter3 = nn.CrossEntropyLoss()
+opt3 = optim.SGD(MLS3.parameters(), lr=0.1)
+
+MLS4 = MultiLayer_soft4()
+criter4 = nn.CrossEntropyLoss()
+opt4 = optim.SGD(MLS4.parameters(), lr=0.1)
+
+MLS5 = MultiLayer_soft5()
+criter5 = nn.CrossEntropyLoss()
+opt5 = optim.SGD(MLS5.parameters(), lr=0.1)
+
+MLS10 = MultiLayer_soft10()
+criter10 = nn.CrossEntropyLoss()
+opt10 = optim.SGD(MLS10.parameters(), lr=0.1)
+
+for epoch in range(epochs):
+    MLS3.train()
+    total_loss = 0.0
+
+    for images, labels in train_loader:
+        opt3.zero_grad() # Resets the stored gradients we obtained at last iteration
+        outputs = MLS3(images) # Applies model to our training dataset
+        loss = criter3(outputs, labels) # Calculates huber loss
+        loss.backward() # Calculates huber gradient, does not do backward propagation !
+        opt3.step() # Applies the gradient descent
+
+        total_loss += loss.item()
+
+    losses[3].append(total_loss)
+    print(f"Multi Layer with 3 hidden System @ Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
+
+for epoch in range(epochs):
+    MLS4.train()
+    total_loss = 0.0
+
+    for images, labels in train_loader:
+        opt4.zero_grad() # Resets the stored gradients we obtained at last iteration
+        outputs = MLS4(images) # Applies model to our training dataset
+        loss = criter4(outputs, labels) # Calculates huber loss
+        loss.backward() # Calculates huber gradient, does not do backward propagation !
+        opt4.step() # Applies the gradient descent
+
+        total_loss += loss.item()
+
+    losses[4].append(total_loss)
+    print(f"Multi Layer with 4 hidden System @ Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
+
+for epoch in range(epochs):
+    MLS5.train()
+    total_loss = 0.0
+
+    for images, labels in train_loader:
+        opt5.zero_grad() # Resets the stored gradients we obtained at last iteration
+        outputs = MLS5(images) # Applies model to our training dataset
+        loss = criter5(outputs, labels) # Calculates huber loss
+        loss.backward() # Calculates huber gradient, does not do backward propagation !
+        opt5.step() # Applies the gradient descent
+
+        total_loss += loss.item()
+
+    losses[5].append(total_loss)
+    print(f"Multi Layer with 5 hidden System @ Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
+
+for epoch in range(epochs):
+    MLS10.train()
+    total_loss = 0.0
+
+    for images, labels in train_loader:
+        opt10.zero_grad() # Resets the stored gradients we obtained at last iteration
+        outputs = MLS10(images) # Applies model to our training dataset
+        loss = criter10(outputs, labels) # Calculates huber loss
+        loss.backward() # Calculates huber gradient, does not do backward propagation !
+        opt10.step() # Applies the gradient descent
+
+        total_loss += loss.item()
+
+    losses[6].append(total_loss)
+    print(f"Multi Layer with 10 hidden System @ Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
+
+MLS3.eval() # We go into test mode
+predicted = []
+true_labels = []
+
+with torch.no_grad():
+    for images, labels in test_loader:
+        outputs = MLS3(images) # Make the inputs go through the model
+        preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
+        predicted.extend(preds.numpy()) # Add predictions to our list
+        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+
+
+prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+wrong_ones_mls3 = [] # Stores the images seen as wrong, to project them later
+for i in range(0,len(predicted)):
+    if predicted[i] != mnist_label[i+60000]:
+        prediction_errors[int(mnist_label[i+60000])] += 1
+        wrong_ones_mls3.append(mnist_data[i+60000])
+        wo_true[3].append(mnist_label[i+60000])
+        wo_false[3].append(predicted[i])
+
+MLS4.eval() # We go into test mode
+predicted = []
+true_labels = []
+
+with torch.no_grad():
+    for images, labels in test_loader:
+        outputs = MLS4(images) # Make the inputs go through the model
+        preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
+        predicted.extend(preds.numpy()) # Add predictions to our list
+        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+
+
+prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+wrong_ones_mls4 = [] # Stores the images seen as wrong, to project them later
+for i in range(0,len(predicted)):
+    if predicted[i] != mnist_label[i+60000]:
+        prediction_errors[int(mnist_label[i+60000])] += 1
+        wrong_ones_mls4.append(mnist_data[i+60000])
+        wo_true[4].append(mnist_label[i+60000])
+        wo_false[4].append(predicted[i])
+
+MLS5.eval() # We go into test mode
+predicted = []
+true_labels = []
+
+with torch.no_grad():
+    for images, labels in test_loader:
+        outputs = MLS5(images) # Make the inputs go through the model
+        preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
+        predicted.extend(preds.numpy()) # Add predictions to our list
+        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+
+
+prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+wrong_ones_mls5 = [] # Stores the images seen as wrong, to project them later
+for i in range(0,len(predicted)):
+    if predicted[i] != mnist_label[i+60000]:
+        prediction_errors[int(mnist_label[i+60000])] += 1
+        wrong_ones_mls5.append(mnist_data[i+60000])
+        wo_true[5].append(mnist_label[i+60000])
+        wo_false[5].append(predicted[i])
+
+MLS10.eval() # We go into test mode
+predicted = []
+true_labels = []
+
+with torch.no_grad():
+    for images, labels in test_loader:
+        outputs = MLS10(images) # Make the inputs go through the model
+        preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
+        predicted.extend(preds.numpy()) # Add predictions to our list
+        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+
+
+prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+wrong_ones_mls10 = [] # Stores the images seen as wrong, to project them later
+for i in range(0,len(predicted)):
+    if predicted[i] != mnist_label[i+60000]:
+        prediction_errors[int(mnist_label[i+60000])] += 1
+        wrong_ones_mls10.append(mnist_data[i+60000])
+        wo_true[6].append(mnist_label[i+60000])
+        wo_false[6].append(predicted[i])
+
+mls3_ls_count = 0
+mls4_ls_count = 0
+mls5_ls_count = 0
+mls10_ls_count = 0
+
+for elem in wrong_ones:
+    if any(np.array_equal(elem, x) for x in wrong_ones_mls3):
+        mls3_ls_count += 1
+    if any(np.array_equal(elem, x) for x in wrong_ones_mls4):
+        mls4_ls_count += 1
+    if any(np.array_equal(elem, x) for x in wrong_ones_mls5):
+        mls5_ls_count += 1
+    if any(np.array_equal(elem, x) for x in wrong_ones_mls4):
+        mls4_ls_count += 1
+
+mls3_ls_count /= len(wrong_ones) # Get a proportion relatives to the length of LS incorrect predictions, for better understanding
+mls4_ls_count /= len(wrong_ones)
+mls5_ls_count /= len(wrong_ones)
+mls10_ls_count /= len(wrong_ones)
+
+plt.figure(4)
+fig, axs = plt.subplots(1,2) # Loss progression for each combined in one graph + wrong ones similarities
+axs[0].plot(np.arange(0,epochs,1), losses[2], linestyle="dashdot", color="red", marker="+")
+axs[0].plot(np.arange(0,epochs,1), losses[3], linestyle="dashdot", color="purple", marker="+")
+axs[0].plot(np.arange(0,epochs,1), losses[4], linestyle="dashdot", color="cyan", marker="+")
+axs[0].plot(np.arange(0,epochs,1), losses[5], linestyle="dashdot", color="pink", marker="+")
+axs[0].plot(np.arange(0,epochs,1), losses[6], linestyle="dashdot", color="black", marker="+")
+axs[0].set_title("Loss progression during epochs (Layer Study)")
+axs[0].set_ylabel("Total loss (u.a.)")
+axs[0].set_xlabel("Epoch number")
+axs[0].legend(["MLS2", "MLS3", "MLS4", "MLS5", "MLS10"])
+axs[0].set_xticks(np.arange(0,epochs,1)) # Show every epoch in x axis
+axs[1].bar(np.arange(0,len(["MultiLayer Softmax 3", "MultiLayer Softmax 4", "MultiLayer Softmax 5", "MultiLayer Softmax 10"])) - 0.35/2, [mls3_ls_count, mls4_ls_count, mls5_ls_count, mls10_ls_count], width=0.4)
+axs[1].bar(np.arange(0,len(["MultiLayer Softmax 3", "MultiLayer Softmax 4", "MultiLayer Softmax 5", "MultiLayer Softmax 10"])) + 0.35/2, [len(wrong_ones_mls3)/len(wrong_ones), len(wrong_ones_mls4)/len(wrong_ones), len(wrong_ones_mls5)/len(wrong_ones), len(wrong_ones_mls10)/len(wrong_ones)], color="olivedrab", width=0.4) # Adds in comparison length of wrong ones array to LS wrong ones to make a relative comparison
+axs[1].set_xticks(np.arange(0,len(["MLS3", "MLS4", "MLS5", "MLS10"])), ["MLS3", "MLS4", "MLS5", "MLS10"])
+axs[1].legend(["Similar incorrect predictions", "Size of incorrect predictions array"])
+axs[1].set_title("Proportion of incorrect predictions of Linear System similar to other models")
+axs[1].set_ylim(0,1)
+plt.show()

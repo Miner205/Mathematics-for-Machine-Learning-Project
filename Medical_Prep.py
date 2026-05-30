@@ -3,8 +3,8 @@ import pandas as pd
 from PIL import Image
 
 # --- 1. SETUP: Defining our folders ---
-CSV_FILE = 'mass_case_description_train_set.csv'
-BASE_IMAGE_DIR = 'original_medical_images' # Replace with the actual folder name your team downloads
+CSV_FILE = './archive/csv/mass_case_description_train_set.csv'
+BASE_IMAGE_DIR = './archive/jpeg' # Replace with the actual folder name your team downloads
 OUTPUT_DIR = 'processed_medical_dataset'
 
 # We create two folders for our binary classification
