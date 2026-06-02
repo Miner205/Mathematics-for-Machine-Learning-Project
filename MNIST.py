@@ -649,3 +649,80 @@ axs[1].legend(["Similar incorrect predictions", "Size of incorrect predictions a
 axs[1].set_title("Proportion of incorrect predictions of Linear System similar to other models")
 axs[1].set_ylim(0,1)
 plt.show()
+
+# To test noise or overfitting : compare MLS2, MLS5 and MLS10 performance on training set wrongful predictions
+train_errors = []
+
+MLS10.eval() # We go into test mode
+predicted = []
+true_labels = []
+
+with torch.no_grad():
+    for images, labels in train_loader:
+        outputs = MLS10(images) # Make the inputs go through the model
+        preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
+        predicted.extend(preds.numpy()) # Add predictions to our list
+        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+
+
+prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+wrong_ones_mls10 = [] # Stores the images seen as wrong, to project them later
+for i in range(0,len(predicted)):
+    if predicted[i] != mnist_label[i]:
+        prediction_errors[int(mnist_label[i])] += 1 # Detecting errors with the training set this time
+        wrong_ones_mls10.append(mnist_data[i])
+
+train_errors.append(len(wrong_ones_mls10))
+
+MLS2.eval() # We go into test mode
+predicted = []
+true_labels = []
+
+with torch.no_grad():
+    for images, labels in train_loader:
+        outputs = MLS2(images) # Make the inputs go through the model
+        preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
+        predicted.extend(preds.numpy()) # Add predictions to our list
+        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+
+
+prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+wrong_ones_mls2 = [] # Stores the images seen as wrong, to project them later
+for i in range(0,len(predicted)):
+    if predicted[i] != mnist_label[i]:
+        prediction_errors[int(mnist_label[i])] += 1 # Detecting errors with the training set this time
+        wrong_ones_mls2.append(mnist_data[i])
+
+train_errors.append(len(wrong_ones_mls2))
+
+MLS5.eval() # We go into test mode
+predicted = []
+true_labels = []
+
+with torch.no_grad():
+    for images, labels in train_loader:
+        outputs = MLS5(images) # Make the inputs go through the model
+        preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
+        predicted.extend(preds.numpy()) # Add predictions to our list
+        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+
+
+prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+wrong_ones_mls5 = [] # Stores the images seen as wrong, to project them later
+for i in range(0,len(predicted)):
+    if predicted[i] != mnist_label[i]:
+        prediction_errors[int(mnist_label[i])] += 1 # Detecting errors with the training set this time
+        wrong_ones_mls5.append(mnist_data[i])
+
+train_errors.append(len(wrong_ones_mls5))
+
+train_errors = np.array(train_errors)
+train_errors = train_errors.flatten() / float(60000)
+
+plt.figure(5)
+plt.bar(np.arange(0,3), train_errors)
+plt.legend("Error rate")
+plt.xticks(np.arange(0,3), ["MLS10", "MLS2", "MLS5"])
+plt.title("Error proportion over the training set")
+plt.ylim(0.7,1)
+plt.show()
