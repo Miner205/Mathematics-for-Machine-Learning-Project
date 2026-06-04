@@ -27,6 +27,7 @@ class Linear_CIFAR_Gray(nn.Module):
     def __init__(self):
         super().__init__()
         self.layer = nn.Linear(1024, 10)
+
     def forward(self, x):
         return self.layer(x)
 
@@ -34,6 +35,7 @@ class Linear_CIFAR_Color(nn.Module):
     def __init__(self):
         super().__init__()
         self.layer = nn.Linear(3072, 10)
+
     def forward(self, x):
         return self.layer(x)
 
@@ -41,6 +43,7 @@ class MLP_CIFAR_Gray(nn.Module):
     def __init__(self):
         super().__init__()
         self.layers = nn.Sequential(nn.Linear(1024, 512), nn.ReLU(), nn.Linear(512, 128), nn.ReLU(), nn.Linear(128, 10))
+
     def forward(self, x):
         return self.layers(x)
 
@@ -48,6 +51,7 @@ class MLP_CIFAR_Color(nn.Module):
     def __init__(self):
         super().__init__()
         self.layers = nn.Sequential(nn.Linear(3072, 1024), nn.ReLU(), nn.Linear(1024, 256), nn.ReLU(), nn.Linear(256, 10))
+
     def forward(self, x):
         return self.layers(x)
 
@@ -101,6 +105,7 @@ def test_model(model, test_loader):
     accuracy = 100 * correct / total
     print(f"  => VERIFICATION: Accuracy on Test Images: {accuracy:.2f}%\n")
     return accuracy
+
 
 # 4. MAIN EXECUTION
 

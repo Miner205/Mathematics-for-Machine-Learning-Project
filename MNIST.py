@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import numpy as np
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from torchsummary import summary
 from scipy.io import loadmat
@@ -56,18 +58,18 @@ class Linear_soft(nn.Module): # Defining linear model architecture
         self.layer = nn.Linear(784, 10)
         self.softmax = nn.Softmax(dim=0)
 
-    def forward(self,x):
+    def forward(self, x):
         x = self.layer(x) # We'll apply softmax later in our model, you'll see
         return x
 
 class MultiLayer_soft1(nn.Module): # Defining multi-layer model architecture with 1 hidden layer
     def __init__(self):
         super().__init__()
-        self.l1 = nn.Linear(784,100) # 100 neurons choice because multiple of number of class, and allows more fine graining while reducing a bit the size of our network
-        self.out_layer = nn.Linear(100,10)
+        self.l1 = nn.Linear(784, 100) # 100 neurons choice because multiple of number of class, and allows more fine graining while reducing a bit the size of our network
+        self.out_layer = nn.Linear(100, 10)
         self.relu = nn.ReLU() # ReLU is according to course of the most used activation function, so why not ?
 
-    def forward(self,x):
+    def forward(self, x):
         x = self.relu(self.l1(x))
         x = self.out_layer(x)
         return x
@@ -75,12 +77,12 @@ class MultiLayer_soft1(nn.Module): # Defining multi-layer model architecture wit
 class MultiLayer_soft2(nn.Module):
     def __init__(self):
         super().__init__()
-        self.l1 = nn.Linear(784,100)
-        self.l2 = nn.Linear(100,100)
-        self.out_layer = nn.Linear(100,10)
+        self.l1 = nn.Linear(784, 100)
+        self.l2 = nn.Linear(100, 100)
+        self.out_layer = nn.Linear(100, 10)
         self.relu = nn.ReLU() # ReLU is according to course of the most used activation function, so why not ?
 
-    def forward(self,x):
+    def forward(self, x):
         x = self.relu(self.l1(x))
         x = self.relu(self.l2(x))
         x = self.out_layer(x)
@@ -124,7 +126,7 @@ summary(MLS1, input_size=(784,))
 summary(MLS2, input_size=(784,))
 
 epochs = 5
-losses = [[],[],[],[],[],[],[]]
+losses = [[], [], [], [], [], [], []]
 
 for epoch in range(epochs):
     LS.train()
@@ -221,11 +223,11 @@ with torch.no_grad():
         true_labels.extend(labels.numpy()) # add the concerned true labels to our list
 
 
-prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
 wrong_ones = [] # Stores the images seen as wrong, to project them later
-wo_true = [[],[],[],[],[],[],[]] # Stores true label for each wrong prediction
-wo_false = [[],[],[],[],[],[],[]] # Same but with predicted
-for i in range(0,len(predicted)):
+wo_true = [[], [], [], [], [], [], []] # Stores true label for each wrong prediction
+wo_false = [[], [], [], [], [], [], []] # Same but with predicted
+for i in range(0, len(predicted)):
     if predicted[i] != mnist_label[i+60000]:
         prediction_errors[int(mnist_label[i+60000])] += 1
         wrong_ones.append(mnist_data[i+60000])
@@ -235,8 +237,8 @@ for i in range(0,len(predicted)):
 print(prediction_errors)
 
 plt.figure(0) # Create separate window for each figure
-fig, axs = plt.subplots(1,2)
-axs[0].bar([0,1,2,3,4,5,6,7,8,9], prediction_errors)
+fig, axs = plt.subplots(1, 2)
+axs[0].bar([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], prediction_errors)
 axs[0].set_title("Misattribution of label following the true nature of a number [LS]")
 axs[0].set_xlabel("True Class")
 axs[0].set_ylabel("Amount of misattributed labels")
@@ -258,9 +260,9 @@ with torch.no_grad():
         true_labels.extend(labels.numpy()) # add the concerned true labels to our list
 
 
-prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
 wrong_ones_mls1 = [] # Stores the images seen as wrong, to project them later
-for i in range(0,len(predicted)):
+for i in range(0, len(predicted)):
     if predicted[i] != mnist_label[i+60000]:
         prediction_errors[int(mnist_label[i+60000])] += 1
         wrong_ones_mls1.append(mnist_data[i+60000])
@@ -270,8 +272,8 @@ for i in range(0,len(predicted)):
 print(prediction_errors)
 
 plt.figure(1)
-fig, axs = plt.subplots(1,2)
-axs[0].bar([0,1,2,3,4,5,6,7,8,9], prediction_errors)
+fig, axs = plt.subplots(1, 2)
+axs[0].bar([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], prediction_errors)
 axs[0].set_title("Misattribution of label following the true nature of a number [MLS1]")
 axs[0].set_xlabel("True Class")
 axs[0].set_ylabel("Amount of misattributed labels")
@@ -293,9 +295,9 @@ with torch.no_grad():
         true_labels.extend(labels.numpy()) # add the concerned true labels to our list
 
 
-prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
 wrong_ones_mls2 = [] # Stores the images seen as wrong, to project them later
-for i in range(0,len(predicted)):
+for i in range(0, len(predicted)):
     if predicted[i] != mnist_label[i+60000]:
         prediction_errors[int(mnist_label[i+60000])] += 1
         wrong_ones_mls2.append(mnist_data[i+60000])
@@ -305,8 +307,8 @@ for i in range(0,len(predicted)):
 print(prediction_errors)
 
 plt.figure(2)
-fig, axs = plt.subplots(1,2)
-axs[0].bar([0,1,2,3,4,5,6,7,8,9], prediction_errors)
+fig, axs = plt.subplots(1, 2)
+axs[0].bar([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], prediction_errors)
 axs[0].set_title("Misattribution of label following the true nature of a number [MLS2]")
 axs[0].set_xlabel("True Class")
 axs[0].set_ylabel("Amount of misattributed labels")
@@ -335,21 +337,21 @@ mls1_ls_count /= len(wrong_ones) # Get a proportion relatives to the length of L
 mls2_ls_count /= len(wrong_ones)
 
 plt.figure(3)
-fig, axs = plt.subplots(1,2) # Loss progression for each combined in one graph + wrong ones similarities
-axs[0].plot(np.arange(0,epochs,1), losses[0], linestyle="dashdot", color="blue", marker="+")
-axs[0].plot(np.arange(0,epochs,1), losses[1], linestyle="dashdot", color="green", marker="+")
-axs[0].plot(np.arange(0,epochs,1), losses[2], linestyle="dashdot", color="red", marker="+")
+fig, axs = plt.subplots(1, 2) # Loss progression for each combined in one graph + wrong ones similarities
+axs[0].plot(np.arange(0, epochs, 1), losses[0], linestyle="dashdot", color="blue", marker="+")
+axs[0].plot(np.arange(0, epochs, 1), losses[1], linestyle="dashdot", color="green", marker="+")
+axs[0].plot(np.arange(0, epochs, 1), losses[2], linestyle="dashdot", color="red", marker="+")
 axs[0].set_title("Loss progression during epochs")
 axs[0].set_ylabel("Total loss (u.a.)")
 axs[0].set_xlabel("Epoch number")
 axs[0].legend(["LS", "MLS1", "MLS2"])
-axs[0].set_xticks(np.arange(0,epochs,1)) # Show every epoch in x axis
-axs[1].bar(np.arange(0,len(["MultiLayer Softmax 1", "MultiLayer Softmax 2"])) - 0.35/2, [mls1_ls_count, mls2_ls_count], width=0.4)
-axs[1].bar(np.arange(0,len(["MultiLayer Softmax 1", "MultiLayer Softmax 2"])) + 0.35/2, [len(wrong_ones_mls1)/len(wrong_ones), len(wrong_ones_mls2)/len(wrong_ones)], color="olivedrab", width=0.4) # Adds in comparison length of wrong ones array to LS wrong ones to make a relative comparison
-axs[1].set_xticks(np.arange(0,len(["MultiLayer Softmax 1", "MultiLayer Softmax 2"])), ["MultiLayer Softmax 1", "MultiLayer Softmax 2"])
+axs[0].set_xticks(np.arange(0, epochs, 1)) # Show every epoch in x axis
+axs[1].bar(np.arange(0, len(["MultiLayer Softmax 1", "MultiLayer Softmax 2"])) - 0.35/2, [mls1_ls_count, mls2_ls_count], width=0.4)
+axs[1].bar(np.arange(0, len(["MultiLayer Softmax 1", "MultiLayer Softmax 2"])) + 0.35/2, [len(wrong_ones_mls1)/len(wrong_ones), len(wrong_ones_mls2)/len(wrong_ones)], color="olivedrab", width=0.4) # Adds in comparison length of wrong ones array to LS wrong ones to make a relative comparison
+axs[1].set_xticks(np.arange(0, len(["MultiLayer Softmax 1", "MultiLayer Softmax 2"])), ["MultiLayer Softmax 1", "MultiLayer Softmax 2"])
 axs[1].legend(["Similar incorrect predictions", "Size of incorrect predictions array"])
 axs[1].set_title("Proportion of incorrect predictions of Linear System similar to other models")
-axs[1].set_ylim(0,1)
+axs[1].set_ylim(0, 1)
 plt.show()
 
 random_indexes = [randint(0, len(wrong_ones)) for _ in range(25)] # 25 random indexes to just have a glance, but not too much else matplotlib displays a mess
@@ -365,13 +367,13 @@ print("Doing the multilayer study")
 class MultiLayer_soft3(nn.Module):
     def __init__(self):
         super().__init__()
-        self.l1 = nn.Linear(784,100)
-        self.l2 = nn.Linear(100,100)
-        self.l3 = nn.Linear(100,100)
-        self.out_layer = nn.Linear(100,10)
+        self.l1 = nn.Linear(784, 100)
+        self.l2 = nn.Linear(100, 100)
+        self.l3 = nn.Linear(100, 100)
+        self.out_layer = nn.Linear(100, 10)
         self.relu = nn.ReLU()
 
-    def forward(self,x):
+    def forward(self, x):
         x = self.relu(self.l1(x))
         x = self.relu(self.l2(x))
         x = self.relu(self.l3(x))
@@ -381,14 +383,14 @@ class MultiLayer_soft3(nn.Module):
 class MultiLayer_soft4(nn.Module):
     def __init__(self):
         super().__init__()
-        self.l1 = nn.Linear(784,100)
-        self.l2 = nn.Linear(100,100)
-        self.l3 = nn.Linear(100,100)
-        self.l4 = nn.Linear(100,100)
-        self.out_layer = nn.Linear(100,10)
+        self.l1 = nn.Linear(784, 100)
+        self.l2 = nn.Linear(100, 100)
+        self.l3 = nn.Linear(100, 100)
+        self.l4 = nn.Linear(100, 100)
+        self.out_layer = nn.Linear(100, 10)
         self.relu = nn.ReLU()
 
-    def forward(self,x):
+    def forward(self, x):
         x = self.relu(self.l1(x))
         x = self.relu(self.l2(x))
         x = self.relu(self.l3(x))
@@ -399,15 +401,15 @@ class MultiLayer_soft4(nn.Module):
 class MultiLayer_soft5(nn.Module):
     def __init__(self):
         super().__init__()
-        self.l1 = nn.Linear(784,100)
-        self.l2 = nn.Linear(100,100)
-        self.l3 = nn.Linear(100,100)
-        self.l4 = nn.Linear(100,100)
-        self.l5 = nn.Linear(100,100)
-        self.out_layer = nn.Linear(100,10)
+        self.l1 = nn.Linear(784, 100)
+        self.l2 = nn.Linear(100, 100)
+        self.l3 = nn.Linear(100, 100)
+        self.l4 = nn.Linear(100, 100)
+        self.l5 = nn.Linear(100, 100)
+        self.out_layer = nn.Linear(100, 10)
         self.relu = nn.ReLU()
 
-    def forward(self,x):
+    def forward(self, x):
         x = self.relu(self.l1(x))
         x = self.relu(self.l2(x))
         x = self.relu(self.l3(x))
@@ -419,20 +421,20 @@ class MultiLayer_soft5(nn.Module):
 class MultiLayer_soft10(nn.Module):
     def __init__(self):
         super().__init__()
-        self.l1 = nn.Linear(784,100)
-        self.l2 = nn.Linear(100,100)
-        self.l3 = nn.Linear(100,100)
-        self.l4 = nn.Linear(100,100)
-        self.l5 = nn.Linear(100,100)
-        self.l6 = nn.Linear(100,100)
-        self.l7 = nn.Linear(100,100)
-        self.l8 = nn.Linear(100,100)
-        self.l9 = nn.Linear(100,100)
-        self.l10 = nn.Linear(100,100)
-        self.out_layer = nn.Linear(100,10)
+        self.l1 = nn.Linear(784, 100)
+        self.l2 = nn.Linear(100, 100)
+        self.l3 = nn.Linear(100, 100)
+        self.l4 = nn.Linear(100, 100)
+        self.l5 = nn.Linear(100, 100)
+        self.l6 = nn.Linear(100, 100)
+        self.l7 = nn.Linear(100, 100)
+        self.l8 = nn.Linear(100, 100)
+        self.l9 = nn.Linear(100, 100)
+        self.l10 = nn.Linear(100, 100)
+        self.out_layer = nn.Linear(100, 10)
         self.relu = nn.ReLU()
 
-    def forward(self,x):
+    def forward(self, x):
         x = self.relu(self.l1(x))
         x = self.relu(self.l2(x))
         x = self.relu(self.l3(x))
@@ -538,9 +540,9 @@ with torch.no_grad():
         true_labels.extend(labels.numpy()) # add the concerned true labels to our list
 
 
-prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
 wrong_ones_mls3 = [] # Stores the images seen as wrong, to project them later
-for i in range(0,len(predicted)):
+for i in range(0, len(predicted)):
     if predicted[i] != mnist_label[i+60000]:
         prediction_errors[int(mnist_label[i+60000])] += 1
         wrong_ones_mls3.append(mnist_data[i+60000])
@@ -559,9 +561,9 @@ with torch.no_grad():
         true_labels.extend(labels.numpy()) # add the concerned true labels to our list
 
 
-prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
 wrong_ones_mls4 = [] # Stores the images seen as wrong, to project them later
-for i in range(0,len(predicted)):
+for i in range(0, len(predicted)):
     if predicted[i] != mnist_label[i+60000]:
         prediction_errors[int(mnist_label[i+60000])] += 1
         wrong_ones_mls4.append(mnist_data[i+60000])
@@ -580,9 +582,9 @@ with torch.no_grad():
         true_labels.extend(labels.numpy()) # add the concerned true labels to our list
 
 
-prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
 wrong_ones_mls5 = [] # Stores the images seen as wrong, to project them later
-for i in range(0,len(predicted)):
+for i in range(0, len(predicted)):
     if predicted[i] != mnist_label[i+60000]:
         prediction_errors[int(mnist_label[i+60000])] += 1
         wrong_ones_mls5.append(mnist_data[i+60000])
@@ -601,9 +603,9 @@ with torch.no_grad():
         true_labels.extend(labels.numpy()) # add the concerned true labels to our list
 
 
-prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
 wrong_ones_mls10 = [] # Stores the images seen as wrong, to project them later
-for i in range(0,len(predicted)):
+for i in range(0, len(predicted)):
     if predicted[i] != mnist_label[i+60000]:
         prediction_errors[int(mnist_label[i+60000])] += 1
         wrong_ones_mls10.append(mnist_data[i+60000])
@@ -631,23 +633,23 @@ mls5_ls_count /= len(wrong_ones)
 mls10_ls_count /= len(wrong_ones)
 
 plt.figure(4)
-fig, axs = plt.subplots(1,2) # Loss progression for each combined in one graph + wrong ones similarities
-axs[0].plot(np.arange(0,epochs,1), losses[2], linestyle="dashdot", color="red", marker="+")
-axs[0].plot(np.arange(0,epochs,1), losses[3], linestyle="dashdot", color="purple", marker="+")
-axs[0].plot(np.arange(0,epochs,1), losses[4], linestyle="dashdot", color="cyan", marker="+")
-axs[0].plot(np.arange(0,epochs,1), losses[5], linestyle="dashdot", color="pink", marker="+")
-axs[0].plot(np.arange(0,epochs,1), losses[6], linestyle="dashdot", color="black", marker="+")
+fig, axs = plt.subplots(1, 2) # Loss progression for each combined in one graph + wrong ones similarities
+axs[0].plot(np.arange(0, epochs, 1), losses[2], linestyle="dashdot", color="red", marker="+")
+axs[0].plot(np.arange(0, epochs, 1), losses[3], linestyle="dashdot", color="purple", marker="+")
+axs[0].plot(np.arange(0, epochs, 1), losses[4], linestyle="dashdot", color="cyan", marker="+")
+axs[0].plot(np.arange(0, epochs, 1), losses[5], linestyle="dashdot", color="pink", marker="+")
+axs[0].plot(np.arange(0, epochs, 1), losses[6], linestyle="dashdot", color="black", marker="+")
 axs[0].set_title("Loss progression during epochs (Layer Study)")
 axs[0].set_ylabel("Total loss (u.a.)")
 axs[0].set_xlabel("Epoch number")
 axs[0].legend(["MLS2", "MLS3", "MLS4", "MLS5", "MLS10"])
-axs[0].set_xticks(np.arange(0,epochs,1)) # Show every epoch in x axis
-axs[1].bar(np.arange(0,len(["MultiLayer Softmax 3", "MultiLayer Softmax 4", "MultiLayer Softmax 5", "MultiLayer Softmax 10"])) - 0.35/2, [mls3_ls_count, mls4_ls_count, mls5_ls_count, mls10_ls_count], width=0.4)
-axs[1].bar(np.arange(0,len(["MultiLayer Softmax 3", "MultiLayer Softmax 4", "MultiLayer Softmax 5", "MultiLayer Softmax 10"])) + 0.35/2, [len(wrong_ones_mls3)/len(wrong_ones), len(wrong_ones_mls4)/len(wrong_ones), len(wrong_ones_mls5)/len(wrong_ones), len(wrong_ones_mls10)/len(wrong_ones)], color="olivedrab", width=0.4) # Adds in comparison length of wrong ones array to LS wrong ones to make a relative comparison
-axs[1].set_xticks(np.arange(0,len(["MLS3", "MLS4", "MLS5", "MLS10"])), ["MLS3", "MLS4", "MLS5", "MLS10"])
+axs[0].set_xticks(np.arange(0, epochs, 1)) # Show every epoch in x axis
+axs[1].bar(np.arange(0, len(["MultiLayer Softmax 3", "MultiLayer Softmax 4", "MultiLayer Softmax 5", "MultiLayer Softmax 10"])) - 0.35/2, [mls3_ls_count, mls4_ls_count, mls5_ls_count, mls10_ls_count], width=0.4)
+axs[1].bar(np.arange(0, len(["MultiLayer Softmax 3", "MultiLayer Softmax 4", "MultiLayer Softmax 5", "MultiLayer Softmax 10"])) + 0.35/2, [len(wrong_ones_mls3)/len(wrong_ones), len(wrong_ones_mls4)/len(wrong_ones), len(wrong_ones_mls5)/len(wrong_ones), len(wrong_ones_mls10)/len(wrong_ones)], color="olivedrab", width=0.4) # Adds in comparison length of wrong ones array to LS wrong ones to make a relative comparison
+axs[1].set_xticks(np.arange(0, len(["MLS3", "MLS4", "MLS5", "MLS10"])), ["MLS3", "MLS4", "MLS5", "MLS10"])
 axs[1].legend(["Similar incorrect predictions", "Size of incorrect predictions array"])
 axs[1].set_title("Proportion of incorrect predictions of Linear System similar to other models")
-axs[1].set_ylim(0,1)
+axs[1].set_ylim(0, 1)
 plt.show()
 
 # To test noise or overfitting : compare MLS2, MLS5 and MLS10 performance on training set wrongful predictions
@@ -667,7 +669,7 @@ with torch.no_grad():
 
 prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
 wrong_ones_mls10 = [] # Stores the images seen as wrong, to project them later
-for i in range(0,len(predicted)):
+for i in range(0, len(predicted)):
     if predicted[i] != mnist_label[i]:
         prediction_errors[int(mnist_label[i])] += 1 # Detecting errors with the training set this time
         wrong_ones_mls10.append(mnist_data[i])
@@ -688,7 +690,7 @@ with torch.no_grad():
 
 prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
 wrong_ones_mls2 = [] # Stores the images seen as wrong, to project them later
-for i in range(0,len(predicted)):
+for i in range(0, len(predicted)):
     if predicted[i] != mnist_label[i]:
         prediction_errors[int(mnist_label[i])] += 1 # Detecting errors with the training set this time
         wrong_ones_mls2.append(mnist_data[i])
@@ -707,9 +709,9 @@ with torch.no_grad():
         true_labels.extend(labels.numpy()) # add the concerned true labels to our list
 
 
-prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
 wrong_ones_mls5 = [] # Stores the images seen as wrong, to project them later
-for i in range(0,len(predicted)):
+for i in range(0, len(predicted)):
     if predicted[i] != mnist_label[i]:
         prediction_errors[int(mnist_label[i])] += 1 # Detecting errors with the training set this time
         wrong_ones_mls5.append(mnist_data[i])
@@ -720,9 +722,9 @@ train_errors = np.array(train_errors)
 train_errors = train_errors.flatten() / float(60000)
 
 plt.figure(5)
-plt.bar(np.arange(0,3), train_errors)
+plt.bar(np.arange(0, 3), train_errors)
 plt.legend("Error rate")
-plt.xticks(np.arange(0,3), ["MLS10", "MLS2", "MLS5"])
+plt.xticks(np.arange(0, 3), ["MLS10", "MLS2", "MLS5"])
 plt.title("Error proportion over the training set")
-plt.ylim(0.7,1)
+plt.ylim(0.7, 1)
 plt.show()
