@@ -5,13 +5,19 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
+# to use nvidia gpu instead of cpu ;
+# to be able to use it first you need to have an nvidia gpu [apparently it's only recommended to have one, not mandatory],
+# then in windows cmd of computer type the command "nvidia-smi" and note the Cuda version printed,
+# then in PyCharm cmd/terminal use command "pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu126" with either 126, 130 or 132 depending of your Cuda version.
+# pip command from here (check here for Linux/Mac version too) : https://pytorch.org/
+# Note: pour que la bonne version de pytorch/cuda soit installé/utilisé sur mon pc j'ai d'abord dû désintaller l'ancienne version(cpu) avec "pip uninstall torch torchvision"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Note: calculation launched on {device}.\n")
 
 torch.manual_seed(0)
 np.random.seed(0)
 
-# 1. CUSTOM DATA PREPROCESSORS
+# CUSTOM DATA PREPROCESSORS
 
 class GrayscaleFlattenTransform:
     def __call__(self, img_tensor):
@@ -24,7 +30,7 @@ class ColorFlattenTransform:
         return img_tensor.view(-1)
 
 
-# 2. ARCHITECTURES
+# ARCHITECTURES
 
 class Linear_CIFAR_Gray(nn.Module):
     def __init__(self):
@@ -34,6 +40,7 @@ class Linear_CIFAR_Gray(nn.Module):
     def forward(self, x):
         return self.layer(x)
 
+
 class Linear_CIFAR_Color(nn.Module):
     def __init__(self):
         super().__init__()
@@ -41,6 +48,7 @@ class Linear_CIFAR_Color(nn.Module):
 
     def forward(self, x):
         return self.layer(x)
+
 
 class MLP_CIFAR_Gray(nn.Module):
     def __init__(self):
@@ -50,6 +58,7 @@ class MLP_CIFAR_Gray(nn.Module):
     def forward(self, x):
         return self.layers(x)
 
+
 class MLP_CIFAR_Color(nn.Module):
     def __init__(self):
         super().__init__()
@@ -57,6 +66,7 @@ class MLP_CIFAR_Color(nn.Module):
 
     def forward(self, x):
         return self.layers(x)
+
 
 class CIFAR_CNN(nn.Module):
     def __init__(self):
@@ -72,6 +82,7 @@ class CIFAR_CNN(nn.Module):
         x = self.conv_block3(x)
         x = self.densification(x)
         return x
+
 
 class CIFAR_CNN_3D(nn.Module):
     def __init__(self):
@@ -103,7 +114,9 @@ class CIFAR_CNN_3D(nn.Module):
         x = self.conv_block3(x)
         x = self.densification(x)
         return x
-# 3. TRAINING & TESTING LOOPS
+
+
+# TRAINING & TESTING LOOPS
 
 def train_model(model, train_loader, epochs=5):
     model = model.to(device)
@@ -115,18 +128,21 @@ def train_model(model, train_loader, epochs=5):
         total_loss = 0.0
         for batch_idx, (images, labels) in enumerate(train_loader):
             optimizer.zero_grad()
+            images = images.to(device)
+            labels = labels.to(device)
             outputs = model(images)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
             if (batch_idx + 1) % 100 == 0:
-                print(f"  > Processed {batch_idx + 1}/{len(train_loader)} batches...")
+                print(f" > Processed {batch_idx + 1}/{len(train_loader)} batches...")
         print(f"Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
     return model
 
+
 def test_model(model, test_loader):
-    """THIS IS THE FUNCTION THAT VERIFIES THE MODEL"""
+    """Function to verifies the different models"""
     model = model.to(device)
     model.eval()
     correct, total = 0, 0
@@ -137,12 +153,11 @@ def test_model(model, test_loader):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
     accuracy = 100 * correct / total
-    print(f"  => VERIFICATION: Accuracy on Test Images: {accuracy:.2f}%\n")
+    print(f" => Verification: Accuracy on Test Images: {accuracy:.2f}%\n")
     return accuracy
 
 
-
-# 4. MAIN EXECUTION
+# MAIN
 
 if __name__ == "__main__":
     

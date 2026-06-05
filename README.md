@@ -11,6 +11,7 @@ Indiko Jabua
 https://github.com/Miner205/Mathematics-for-Machine-Learning-Project
 
 # Project specification :
+cf note on how to pip install torch/cuda in Section2_CIFAR.py (line 8 to 13).
 
 # ToDo :
 
