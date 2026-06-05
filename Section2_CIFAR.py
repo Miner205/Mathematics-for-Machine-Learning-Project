@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 # then in PyCharm cmd/terminal use command "pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu126" with either 126, 130 or 132 depending of your Cuda version.
 # pip command from here (check here for Linux/Mac version too) : https://pytorch.org/
 # Note: pour que la bonne version de pytorch/cuda soit installé/utilisé sur mon pc j'ai d'abord dû désintaller l'ancienne version(cpu) avec "pip uninstall torch torchvision"
+# ps: après test, pas vraiment beaucoup plus avec cuda que version seulement cpu.
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Note: calculation launched on {device}.\n")
 
@@ -155,7 +156,7 @@ def test_model(model, test_loader):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
     accuracy = 100 * correct / total
-    print(f"\n--- Training of {model.__class__.__name__} Completed ---")
+    print(f"\n--- Training and Testing of {model.__class__.__name__} Completed ---")
     print(f" => Verification: Accuracy on Test Images: {accuracy:.2f}%\n")
     return accuracy
 
