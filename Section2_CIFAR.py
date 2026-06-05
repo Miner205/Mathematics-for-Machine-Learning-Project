@@ -136,6 +136,7 @@ def test_model(model, test_loader):
     return accuracy
 
 
+
 # 4. MAIN EXECUTION
 
 if __name__ == "__main__":
@@ -145,7 +146,6 @@ if __name__ == "__main__":
     transform_cnn = transforms.Compose([transforms.Resize((32, 32)), transforms.ToTensor()])
 
     print("Loading datasets...")
-    # Make sure your folders are exactly named cifar10_data/train and cifar10_data/test!
     train_gray = DataLoader(datasets.ImageFolder('cifar10_data/train', transform=transform_gray), batch_size=128, shuffle=True)
     test_gray = DataLoader(datasets.ImageFolder('cifar10_data/test', transform=transform_gray), batch_size=128, shuffle=False)
     
@@ -155,36 +155,50 @@ if __name__ == "__main__":
     train_cnn = DataLoader(datasets.ImageFolder('cifar10_data/train', transform=transform_cnn), batch_size=128, shuffle=True)
     test_cnn = DataLoader(datasets.ImageFolder('cifar10_data/test', transform=transform_cnn), batch_size=128, shuffle=False)
 
-    # 1. Linear Models (Preliminary Test)
-    print("\n--- Testing Linear Grayscale ---")
-    model_gray_lin = Linear_CIFAR_Gray()
-    train_model(model_gray_lin, train_gray)
-    test_model(model_gray_lin, test_gray)
+    print("\n" + "="*30)
+    print(" MENU DE TEST CIFAR")
+    print("="*30)
+    print("1 - Lancer UNIQUEMENT le test 3D (Rapide)")
+    print("2 - Lancer TOUT (Modèles linéaires, MLP, 2D et 3D)")
+    print("="*30)
+    
+    choix = input("Tape 1 ou 2 et appuie sur Entrée : ")
 
-    print("\n--- Testing Linear Color ---")
-    model_color_lin = Linear_CIFAR_Color()
-    train_model(model_color_lin, train_color)
-    test_model(model_color_lin, test_color)
+    if choix == "1":
+        print("\n--- Testing CNN 3D ---")
+        cnn_3d_model = CIFAR_CNN_3D()
+        train_model(cnn_3d_model, train_cnn, epochs=5)
+        test_model(cnn_3d_model, test_cnn)
 
-    # 2. MLP Models (Preliminary Test with Layers)
-    print("\n--- Testing MLP Grayscale ---")
-    model_gray_mlp = MLP_CIFAR_Gray()
-    train_model(model_gray_mlp, train_gray)
-    test_model(model_gray_mlp, test_gray)
+    elif choix == "2":
+        print("\n--- Testing Linear Grayscale ---")
+        model_gray_lin = Linear_CIFAR_Gray()
+        train_model(model_gray_lin, train_gray)
+        test_model(model_gray_lin, test_gray)
 
-    print("\n--- Testing MLP Color ---")
-    model_color_mlp = MLP_CIFAR_Color()
-    train_model(model_color_mlp, train_color)
-    test_model(model_color_mlp, test_color)
+        print("\n--- Testing Linear Color ---")
+        model_color_lin = Linear_CIFAR_Color()
+        train_model(model_color_lin, train_color)
+        test_model(model_color_lin, test_color)
 
-    # 3. The Real Model (CNN)
-    print("\n--- Testing CNN ---")
-    cnn_model = CIFAR_CNN()
-    train_model(cnn_model, train_cnn)
-    test_model(cnn_model, test_cnn)
+        print("\n--- Testing MLP Grayscale ---")
+        model_gray_mlp = MLP_CIFAR_Gray()
+        train_model(model_gray_mlp, train_gray)
+        test_model(model_gray_mlp, test_gray)
 
-# 4. Test du modèle 3D 
-    print("\n--- Testing CNN 3D ---")
-    cnn_3d_model = CIFAR_CNN_3D()
-    train_model(cnn_3d_model, train_cnn)
-    test_model(cnn_3d_model, test_cnn)
+        print("\n--- Testing MLP Color ---")
+        model_color_mlp = MLP_CIFAR_Color()
+        train_model(model_color_mlp, train_color)
+        test_model(model_color_mlp, test_color)
+
+        print("\n--- Testing CNN ---")
+        cnn_model = CIFAR_CNN()
+        train_model(cnn_model, train_cnn)
+        test_model(cnn_model, test_cnn)
+
+        print("\n--- Testing CNN 3D ---")
+        cnn_3d_model = CIFAR_CNN_3D()
+        train_model(cnn_3d_model, train_cnn)
+        test_model(cnn_3d_model, test_cnn)
+    else:
+        print("Choix invalide. Relance le script.")
