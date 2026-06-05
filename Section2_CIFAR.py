@@ -70,7 +70,36 @@ class CIFAR_CNN(nn.Module):
         x = self.densification(x)
         return x
 
+class CIFAR_CNN_3D(nn.Module):
+    def __init__(self):
+        super().__init__()
+        # On passe en 3D mais on force la profondeur à 1 (kernel 1x3x3) pour ne pas crasher
+        self.conv_block1 = nn.Sequential(
+            nn.Conv3d(3, 64, kernel_size=(1, 3, 3), padding=(0, 1, 1)), nn.ReLU(), 
+            nn.Conv3d(64, 64, kernel_size=(1, 3, 3), padding=(0, 1, 1)), nn.ReLU(), 
+            nn.MaxPool3d(kernel_size=(1, 2, 2), stride=(1, 2, 2))
+        )
+        self.conv_block2 = nn.Sequential(
+            nn.Conv3d(64, 64, kernel_size=(1, 3, 3), padding=(0, 1, 1)), nn.ReLU(), 
+            nn.MaxPool3d(kernel_size=(1, 2, 2), stride=(1, 2, 2))
+        )
+        self.conv_block3 = nn.Sequential(
+            nn.Conv3d(64, 64, kernel_size=(1, 3, 3), padding=(0, 1, 1)), nn.ReLU()
+        )
+        self.densification = nn.Sequential(
+            nn.Flatten(), 
+            nn.Linear(8 * 8 * 64, 10)
+        )
 
+    def forward(self, x):
+        # INDISPENSABLE : PyTorch crash si on ne rajoute pas une dimension de "profondeur"
+        # x passe de [batch, 3 canaux, 32, 32] à [batch, 3 canaux, 1 de profondeur, 32, 32]
+        x = x.unsqueeze(2) 
+        x = self.conv_block1(x)
+        x = self.conv_block2(x)
+        x = self.conv_block3(x)
+        x = self.densification(x)
+        return x
 # 3. TRAINING & TESTING LOOPS
 
 def train_model(model, train_loader, epochs=5):
@@ -153,3 +182,9 @@ if __name__ == "__main__":
     cnn_model = CIFAR_CNN()
     train_model(cnn_model, train_cnn)
     test_model(cnn_model, test_cnn)
+
+# 4. Test du modèle 3D 
+    print("\n--- Testing CNN 3D ---")
+    cnn_3d_model = CIFAR_CNN_3D()
+    train_model(cnn_3d_model, train_cnn)
+    test_model(cnn_3d_model, test_cnn)
