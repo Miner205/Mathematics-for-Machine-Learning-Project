@@ -103,6 +103,7 @@ class CIFAR_CNN_3D(nn.Module):
 # 3. TRAINING & TESTING LOOPS
 
 def train_model(model, train_loader, epochs=5):
+    model = model.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.01)
     print(f"\n--- Training {model.__class__.__name__} ---")
@@ -123,6 +124,7 @@ def train_model(model, train_loader, epochs=5):
 
 def test_model(model, test_loader):
     """THIS IS THE FUNCTION THAT VERIFIES THE MODEL"""
+    model = model.to(device)
     model.eval()
     correct, total = 0, 0
     with torch.no_grad():
