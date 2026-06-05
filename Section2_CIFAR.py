@@ -1,4 +1,3 @@
-
 import torch
 import torch.nn as nn
 import numpy as np
@@ -6,9 +5,8 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f" CALCULS LANCÉS SUR : {device}")
+print(f"Note: calculation launched on {device}.\n")
 
 torch.manual_seed(0)
 np.random.seed(0)
@@ -97,7 +95,7 @@ class CIFAR_CNN_3D(nn.Module):
         )
 
     def forward(self, x):
-        # INDISPENSABLE : PyTorch crash si on ne rajoute pas une dimension de "profondeur"
+        # Note : PyTorch crash si on ne rajoute pas une dimension de "profondeur"
         # x passe de [batch, 3 canaux, 32, 32] à [batch, 3 canaux, 1 de profondeur, 32, 32]
         x = x.unsqueeze(2) 
         x = self.conv_block1(x)
@@ -163,21 +161,21 @@ if __name__ == "__main__":
     test_cnn = DataLoader(datasets.ImageFolder('cifar10_data/test', transform=transform_cnn), batch_size=128, shuffle=False)
 
     print("\n" + "="*30)
-    print(" MENU DE TEST CIFAR")
+    print("MENU CIFAR TEST")
     print("="*30)
-    print("1 - Lancer UNIQUEMENT le test 3D (Rapide)")
-    print("2 - Lancer TOUT (Modèles linéaires, MLP, 2D et 3D)")
+    print("1 - test only CNN 3D")
+    print("2 - all tests (Linear models, MLP, CNN 2D and CNN 3D)")
     print("="*30)
     
-    choix = input("Tape 1 ou 2 et appuie sur Entrée : ")
+    choice = input("Enter 1 or 2: ")
 
-    if choix == "1":
+    if choice == "1":
         print("\n--- Testing CNN 3D ---")
         cnn_3d_model = CIFAR_CNN_3D()
         train_model(cnn_3d_model, train_cnn, epochs=5)
         test_model(cnn_3d_model, test_cnn)
 
-    elif choix == "2":
+    elif choice == "2":
         print("\n--- Testing Linear Grayscale ---")
         model_gray_lin = Linear_CIFAR_Gray()
         train_model(model_gray_lin, train_gray)
@@ -208,4 +206,4 @@ if __name__ == "__main__":
         train_model(cnn_3d_model, train_cnn)
         test_model(cnn_3d_model, test_cnn)
     else:
-        print("Choix invalide. Relance le script.")
+        print("Invalid choice. Relaunch the script.")
