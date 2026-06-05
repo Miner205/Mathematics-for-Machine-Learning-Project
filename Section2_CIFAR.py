@@ -6,7 +6,7 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
-# ---> AJOUTE CES DEUX LIGNES ICI <---
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f" CALCULS LANCÉS SUR : {device}")
 
