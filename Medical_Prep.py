@@ -76,7 +76,7 @@ def process_and_save(sample_list, subset_name):
         try:
             img = Image.open(image_path)
             img = img.convert("L")
-            img = img.resize(IMAGE_SIZE, Image.Resampling.LANCZOS)  #todo: to verif this
+            img = img.resize(IMAGE_SIZE, Image.Resampling.LANCZOS)  # apparently "Image.Resampling.LANCZOS" helps to have a better result ; but by testing with and without we see that here it mostly gives the same thing - probably.
             save_name = f"{subset_name}_{index}.png"
             save_path = os.path.join(OUTPUT_DIR, subset_name, label, save_name)
             img.save(save_path)
