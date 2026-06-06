@@ -242,7 +242,7 @@ if __name__ == "__main__":
             train_model(cnn_3d_model, train_cnn, losses)
             accuracies.append(test_model(cnn_3d_model, test_cnn))
         else:
-            print("Invalid choice. Relaunch the script.")
+            print(f"{choice} is an invalid choice !")
     
     plt.figure()
     fig, axs = plt.subplots(1, 2) # Loss progression for each combined in one graph + wrong ones similarities
