@@ -29,8 +29,8 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.5], std=[0.5])  # Normalization
 ])
 
-train_dataset = datasets.ImageFolder("processed_medical_dataset/train", transform=transform)
-test_dataset = datasets.ImageFolder("processed_medical_dataset/test", transform=transform)
+train_dataset = datasets.ImageFolder("./processed_medical_dataset/train", transform=transform)
+test_dataset = datasets.ImageFolder("./processed_medical_dataset/test", transform=transform)
 
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
@@ -133,4 +133,5 @@ if __name__ == "__main__":
         display_labels=["Benign", "Malignant"]
     )
     disp.plot()
+    plt.title("Confusion Matrix")
     plt.show()
