@@ -11,6 +11,10 @@ from torch.utils.data import TensorDataset, DataLoader
 from random import randint
 
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Note: calculation launched on {device}.\n")
+
+
 def display_images(images, indices,  global_title, labels, labi, colonnes=5): # This will be useful later to print the wrong predictions
     n = len(indices)
     lignes = (n + colonnes - 1) // colonnes
@@ -90,14 +94,17 @@ class MultiLayer_soft2(nn.Module):
 
     
 LS = Linear_soft()
+LS.to(device)
 criterion = nn.CrossEntropyLoss() # Cross entropy loss including softmaxxing !
 optimizer = optim.SGD(LS.parameters(), lr=0.1) # The built in optimizer with the model parameters and learning rate to speed up the process
 
 MLS1 = MultiLayer_soft1()
+MLS1.to(device)
 criter1 = nn.CrossEntropyLoss() # Reasons : 1) Other loss functions flattent the tensor like huber loss, not adapted for multi class classification 2) softmax included already 3) accurate same condition comparison for our study between linear and several layers models
 opt1 = optim.SGD(MLS1.parameters(), lr=0.1)
 
 MLS2 = MultiLayer_soft2()
+MLS2.to(device)
 criter2 = nn.CrossEntropyLoss()
 opt2 = optim.SGD(MLS2.parameters(), lr=0.1)
 
@@ -133,6 +140,8 @@ for epoch in range(epochs):
     total_loss = 0.0
 
     for images, labels in train_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         optimizer.zero_grad() # Resets the stored gradients we obtained at last iteration
         outputs = LS(images) # Applies model to our training dataset
         loss = criterion(outputs, labels) # Calculates log loss
@@ -149,6 +158,8 @@ for epoch in range(epochs):
     total_loss = 0.0
 
     for images, labels in train_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         opt1.zero_grad() # Resets the stored gradients we obtained at last iteration
         outputs = MLS1(images) # Applies model to our training dataset
         loss = criter1(outputs, labels) # Calculates huber loss
@@ -165,6 +176,8 @@ for epoch in range(epochs):
     total_loss = 0.0
 
     for images, labels in train_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         opt2.zero_grad() # Resets the stored gradients we obtained at last iteration
         outputs = MLS2(images) # Applies model to our training dataset
         loss = criter2(outputs, labels) # Calculates huber loss
@@ -217,10 +230,12 @@ true_labels = []
 
 with torch.no_grad():
     for images, labels in test_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         outputs = LS(images) # Make the inputs go through the model
         preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
-        predicted.extend(preds.numpy()) # Add predictions to our list
-        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+        predicted.extend(preds.cpu().numpy()) # Add predictions to our list
+        true_labels.extend(labels.cpu().numpy()) # add the concerned true labels to our list
 
 
 prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
@@ -254,10 +269,12 @@ true_labels = []
 
 with torch.no_grad():
     for images, labels in test_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         outputs = MLS1(images) # Make the inputs go through the model
         preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
-        predicted.extend(preds.numpy()) # Add predictions to our list
-        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+        predicted.extend(preds.cpu().numpy()) # Add predictions to our list
+        true_labels.extend(labels.cpu().numpy()) # add the concerned true labels to our list
 
 
 prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
@@ -289,10 +306,12 @@ true_labels = []
 
 with torch.no_grad():
     for images, labels in test_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         outputs = MLS2(images) # Make the inputs go through the model
         preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
-        predicted.extend(preds.numpy()) # Add predictions to our list
-        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+        predicted.extend(preds.cpu().numpy()) # Add predictions to our list
+        true_labels.extend(labels.cpu().numpy()) # add the concerned true labels to our list
 
 
 prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
@@ -449,18 +468,22 @@ class MultiLayer_soft10(nn.Module):
         return x
     
 MLS3 = MultiLayer_soft3()
+MLS3.to(device)
 criter3 = nn.CrossEntropyLoss()
 opt3 = optim.SGD(MLS3.parameters(), lr=0.1)
 
 MLS4 = MultiLayer_soft4()
+MLS4.to(device)
 criter4 = nn.CrossEntropyLoss()
 opt4 = optim.SGD(MLS4.parameters(), lr=0.1)
 
 MLS5 = MultiLayer_soft5()
+MLS5.to(device)
 criter5 = nn.CrossEntropyLoss()
 opt5 = optim.SGD(MLS5.parameters(), lr=0.1)
 
 MLS10 = MultiLayer_soft10()
+MLS10.to(device)
 criter10 = nn.CrossEntropyLoss()
 opt10 = optim.SGD(MLS10.parameters(), lr=0.1)
 
@@ -469,6 +492,8 @@ for epoch in range(epochs):
     total_loss = 0.0
 
     for images, labels in train_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         opt3.zero_grad() # Resets the stored gradients we obtained at last iteration
         outputs = MLS3(images) # Applies model to our training dataset
         loss = criter3(outputs, labels) # Calculates huber loss
@@ -485,6 +510,8 @@ for epoch in range(epochs):
     total_loss = 0.0
 
     for images, labels in train_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         opt4.zero_grad() # Resets the stored gradients we obtained at last iteration
         outputs = MLS4(images) # Applies model to our training dataset
         loss = criter4(outputs, labels) # Calculates huber loss
@@ -501,6 +528,8 @@ for epoch in range(epochs):
     total_loss = 0.0
 
     for images, labels in train_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         opt5.zero_grad() # Resets the stored gradients we obtained at last iteration
         outputs = MLS5(images) # Applies model to our training dataset
         loss = criter5(outputs, labels) # Calculates huber loss
@@ -517,6 +546,8 @@ for epoch in range(epochs):
     total_loss = 0.0
 
     for images, labels in train_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         opt10.zero_grad() # Resets the stored gradients we obtained at last iteration
         outputs = MLS10(images) # Applies model to our training dataset
         loss = criter10(outputs, labels) # Calculates huber loss
@@ -534,10 +565,12 @@ true_labels = []
 
 with torch.no_grad():
     for images, labels in test_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         outputs = MLS3(images) # Make the inputs go through the model
         preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
-        predicted.extend(preds.numpy()) # Add predictions to our list
-        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+        predicted.extend(preds.cpu().numpy()) # Add predictions to our list
+        true_labels.extend(labels.cpu().numpy()) # add the concerned true labels to our list
 
 
 prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
@@ -555,10 +588,12 @@ true_labels = []
 
 with torch.no_grad():
     for images, labels in test_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         outputs = MLS4(images) # Make the inputs go through the model
         preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
-        predicted.extend(preds.numpy()) # Add predictions to our list
-        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+        predicted.extend(preds.cpu().numpy()) # Add predictions to our list
+        true_labels.extend(labels.cpu().numpy()) # add the concerned true labels to our list
 
 
 prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
@@ -576,10 +611,12 @@ true_labels = []
 
 with torch.no_grad():
     for images, labels in test_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         outputs = MLS5(images) # Make the inputs go through the model
         preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
-        predicted.extend(preds.numpy()) # Add predictions to our list
-        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+        predicted.extend(preds.cpu().numpy()) # Add predictions to our list
+        true_labels.extend(labels.cpu().numpy()) # add the concerned true labels to our list
 
 
 prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
@@ -597,10 +634,12 @@ true_labels = []
 
 with torch.no_grad():
     for images, labels in test_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         outputs = MLS10(images) # Make the inputs go through the model
         preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
-        predicted.extend(preds.numpy()) # Add predictions to our list
-        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+        predicted.extend(preds.cpu().numpy()) # Add predictions to our list
+        true_labels.extend(labels.cpu().numpy()) # add the concerned true labels to our list
 
 
 prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
@@ -661,13 +700,15 @@ true_labels = []
 
 with torch.no_grad():
     for images, labels in train_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         outputs = MLS10(images) # Make the inputs go through the model
         preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
-        predicted.extend(preds.numpy()) # Add predictions to our list
-        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+        predicted.extend(preds.cpu().numpy()) # Add predictions to our list
+        true_labels.extend(labels.cpu().numpy()) # add the concerned true labels to our list
 
 
-prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
+prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
 wrong_ones_mls10 = [] # Stores the images seen as wrong, to project them later
 for i in range(0, len(predicted)):
     if predicted[i] != mnist_label[i]:
@@ -682,10 +723,12 @@ true_labels = []
 
 with torch.no_grad():
     for images, labels in train_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         outputs = MLS2(images) # Make the inputs go through the model
         preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
-        predicted.extend(preds.numpy()) # Add predictions to our list
-        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+        predicted.extend(preds.cpu().numpy()) # Add predictions to our list
+        true_labels.extend(labels.cpu().numpy()) # add the concerned true labels to our list
 
 
 prediction_errors = [0,0,0,0,0,0,0,0,0,0] # Stores errors in array following the true label
@@ -703,10 +746,12 @@ true_labels = []
 
 with torch.no_grad():
     for images, labels in train_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         outputs = MLS5(images) # Make the inputs go through the model
         preds = torch.argmax(outputs, dim=1) # Do the argmax, aka assign a label following highest softmax probability obtained
-        predicted.extend(preds.numpy()) # Add predictions to our list
-        true_labels.extend(labels.numpy()) # add the concerned true labels to our list
+        predicted.extend(preds.cpu().numpy()) # Add predictions to our list
+        true_labels.extend(labels.cpu().numpy()) # add the concerned true labels to our list
 
 
 prediction_errors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Stores errors in array following the true label
