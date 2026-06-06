@@ -75,6 +75,7 @@ def train_model(model, train_loader, epochs=10):
     model = model.to(device)
     criterion = nn.CrossEntropyLoss(weight=class_weights)
     optimizer = optim.Adam(model.parameters(), lr=0.001)
+    print(f"\n--- Training {model.__class__.__name__} ---")
     for epoch in range(epochs):
         model.train()
         running_loss = 0
@@ -92,12 +93,13 @@ def train_model(model, train_loader, epochs=10):
 
 # TESTING
 
-def evaluate_model(model, test_loader):
+def test_model(model, test_loader):
     model = model.to(device)
     model.eval()
     correct, total = 0, 0
     all_labels = []
     all_preds = []
+    print(f"\n--- Testing {model.__class__.__name__} ---")
     with torch.no_grad():
         for images, labels in test_loader:
             images = images.to(device)
@@ -109,6 +111,7 @@ def evaluate_model(model, test_loader):
             all_labels.extend(labels.cpu().numpy())
             all_preds.extend(preds.cpu().numpy())
     accuracy = 100 * correct / total
+    print(f"\n--- Training and Testing of {model.__class__.__name__} Completed ---")
     print(f"\nTest Accuracy: {accuracy:.2f}%")
     cm = confusion_matrix(all_labels, all_preds)
     return cm
@@ -120,7 +123,7 @@ if __name__ == "__main__":
 
     model = MedicalCNN().to(device)
     train_model(model, train_loader, epochs=10)
-    cm = evaluate_model(model, test_loader)
+    cm = test_model(model, test_loader)
 
     print("\nConfusion Matrix:")
     print(cm)

@@ -147,6 +147,7 @@ def test_model(model, test_loader):
     model = model.to(device)
     model.eval()
     correct, total = 0, 0
+    print(f"\n--- Testing {model.__class__.__name__} ---")
     with torch.no_grad():
         for images, labels in test_loader:
             images = images.to(device)
