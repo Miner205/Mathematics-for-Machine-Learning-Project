@@ -112,14 +112,14 @@ if __name__ == "__main__":
 
     print("Loading datasets...")
     # Make sure your folders are exactly named cifar10_data/train and cifar10_data/test!
-    train_gray = DataLoader(datasets.ImageFolder('cifar10_data/train', transform=transform_gray), batch_size=128, shuffle=True)
-    test_gray = DataLoader(datasets.ImageFolder('cifar10_data/test', transform=transform_gray), batch_size=128, shuffle=False)
+    train_gray = DataLoader(datasets.ImageFolder('./cifar10_data/train', transform=transform_gray), batch_size=128, shuffle=True)
+    test_gray = DataLoader(datasets.ImageFolder('./cifar10_data/test', transform=transform_gray), batch_size=128, shuffle=False)
     
-    train_color = DataLoader(datasets.ImageFolder('cifar10_data/train', transform=transform_color), batch_size=128, shuffle=True)
-    test_color = DataLoader(datasets.ImageFolder('cifar10_data/test', transform=transform_color), batch_size=128, shuffle=False)
+    train_color = DataLoader(datasets.ImageFolder('./cifar10_data/train', transform=transform_color), batch_size=128, shuffle=True)
+    test_color = DataLoader(datasets.ImageFolder('./cifar10_data/test', transform=transform_color), batch_size=128, shuffle=False)
     
-    train_cnn = DataLoader(datasets.ImageFolder('cifar10_data/train', transform=transform_cnn), batch_size=128, shuffle=True)
-    test_cnn = DataLoader(datasets.ImageFolder('cifar10_data/test', transform=transform_cnn), batch_size=128, shuffle=False)
+    train_cnn = DataLoader(datasets.ImageFolder('./cifar10_data/train', transform=transform_cnn), batch_size=128, shuffle=True)
+    test_cnn = DataLoader(datasets.ImageFolder('./cifar10_data/test', transform=transform_cnn), batch_size=128, shuffle=False)
 
     # 1. Linear Models (Preliminary Test)
     print("\n--- Testing Linear Grayscale ---")
