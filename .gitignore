@@ -2,4 +2,4 @@ __pycache__/
 .idea/
 cifar10_data/
 processed_medical_dataset/
-archive
+archive/

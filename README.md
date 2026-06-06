@@ -5,13 +5,17 @@ From the classification of handwritten digits to breast cancer detection. An Int
 Arthur Donnat
 Arthur Delannoy
 Raphaël Lesterlin
-Indiko
+Indiko Jabua
 
 # GitHub link :
 https://github.com/Miner205/Mathematics-for-Machine-Learning-Project
 
 # Project specification :
+cf note on how to pip install torch/cuda in Section2_CIFAR.py (line 8 to 13).
 
 # ToDo :
 
 # Functionalities done :
+- Part 1 : MNIST
+- Part 2 : CIFAR
+- Part 3 : Medical_Prep, CBIS-DDSM
