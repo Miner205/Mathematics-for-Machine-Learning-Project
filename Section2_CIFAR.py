@@ -122,7 +122,7 @@ class CIFAR_CNN_3D(nn.Module):
 def train_model(model, train_loader, epochs=5):
     model = model.to(device)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.01)
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
     print(f"\n--- Training {model.__class__.__name__} ---")
     for epoch in range(epochs):
         model.train()
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     if choice == "1":
         print("\n--- Testing CNN 3D ---")
         cnn_3d_model = CIFAR_CNN_3D()
-        train_model(cnn_3d_model, train_cnn, epochs=5)
+        train_model(cnn_3d_model, train_cnn)
         test_model(cnn_3d_model, test_cnn)
 
     elif choice == "2":

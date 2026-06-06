@@ -6,13 +6,18 @@ import numpy as np
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from collections import Counter
+
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
 
 torch.manual_seed(0)
 np.random.seed(0)
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Note: calculation launched on {device}.\n")
 
 
 # DATA
@@ -34,14 +39,11 @@ test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 # CLASS IMBALANCE
 
 targets = train_dataset.targets
-
 class_counts = Counter(targets)
-
 total = len(targets)
-
 weights = [total / class_counts[0], total / class_counts[1]]
-
-class_weights = torch.tensor(weights, dtype=torch.float32).to(DEVICE)
+class_weights = torch.tensor(weights, dtype=torch.float32).to(device)
+#print("Class weights", class_weights, "\n")
 
 
 # MODEL
@@ -67,18 +69,18 @@ class MedicalCNN(nn.Module):
         return x
 
 
-
 # TRAINING
 
 def train_model(model, train_loader, epochs=10):
+    model = model.to(device)
     criterion = nn.CrossEntropyLoss(weight=class_weights)
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    model.train()
     for epoch in range(epochs):
+        model.train()
         running_loss = 0
         for images, labels in train_loader:
-            images = images.to(DEVICE)
-            labels = labels.to(DEVICE)
+            images = images.to(device)
+            labels = labels.to(device)
             optimizer.zero_grad()
             outputs = model(images)
             loss = criterion(outputs, labels)
@@ -91,14 +93,15 @@ def train_model(model, train_loader, epochs=10):
 # TESTING
 
 def evaluate_model(model, test_loader):
+    model = model.to(device)
     model.eval()
     correct, total = 0, 0
     all_labels = []
     all_preds = []
     with torch.no_grad():
         for images, labels in test_loader:
-            images = images.to(DEVICE)
-            labels = labels.to(DEVICE)
+            images = images.to(device)
+            labels = labels.to(device)
             outputs = model(images)
             _, preds = torch.max(outputs, 1)
             total += labels.size(0)
@@ -108,14 +111,23 @@ def evaluate_model(model, test_loader):
     accuracy = 100 * correct / total
     print(f"\nTest Accuracy: {accuracy:.2f}%")
     cm = confusion_matrix(all_labels, all_preds)
-    print("\nConfusion Matrix:")
-    print(cm)
     return cm
 
 
 # MAIN
 
 if __name__ == "__main__":
-    model = MedicalCNN().to(DEVICE)
+
+    model = MedicalCNN().to(device)
     train_model(model, train_loader, epochs=10)
     cm = evaluate_model(model, test_loader)
+
+    print("\nConfusion Matrix:")
+    print(cm)
+
+    disp = ConfusionMatrixDisplay(
+        confusion_matrix=cm,
+        display_labels=["Benign", "Malignant"]
+    )
+    disp.plot()
+    plt.show()
