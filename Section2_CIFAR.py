@@ -4,6 +4,7 @@ import numpy as np
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
+import matplotlib.pyplot as plt
 
 # to use nvidia gpu instead of cpu ;
 # to be able to use it first you need to have an nvidia gpu [apparently it's only recommended to have one, not mandatory],
@@ -119,11 +120,14 @@ class CIFAR_CNN_3D(nn.Module):
 
 # TRAINING & TESTING LOOPS
 
-def train_model(model, train_loader, epochs=5):
+def train_model(model, train_loader, losses=None, epochs=5):
+    if losses is None:
+        losses = []
     model = model.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     print(f"\n--- Training {model.__class__.__name__} ---")
+    holder = [] # temp list to register all the losses, which will be appended to the global loss variable
     for epoch in range(epochs):
         model.train()
         total_loss = 0.0
@@ -139,6 +143,8 @@ def train_model(model, train_loader, epochs=5):
             if (batch_idx + 1) % 100 == 0:
                 print(f" > Processed {batch_idx + 1}/{len(train_loader)} batches...")
         print(f"Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
+        holder.append(total_loss)
+    losses.append(holder)
     return model
 
 
@@ -181,50 +187,80 @@ if __name__ == "__main__":
     train_cnn = DataLoader(datasets.ImageFolder('./cifar10_data/train', transform=transform_cnn), batch_size=128, shuffle=True)
     test_cnn = DataLoader(datasets.ImageFolder('./cifar10_data/test', transform=transform_cnn), batch_size=128, shuffle=False)
 
+    losses = []
+    accuracies = []
+
     print("\n" + "="*30)
     print("MENU CIFAR TEST")
     print("="*30)
     print("1 - test only CNN 3D")
     print("2 - all tests (Linear models, MLP, CNN 2D and CNN 3D)")
     print("="*30)
+
+    choice = "0"
+
+    while choice not in ["1","2"]:
+
+        choice = input("Enter 1 or 2: ")
+
+        if choice == "1":
+            label = ["CNN 3D"]
+            print("\n--- Testing CNN 3D ---")
+            cnn_3d_model = CIFAR_CNN_3D()
+            train_model(cnn_3d_model, train_cnn, losses)
+            accuracies.append(test_model(cnn_3d_model, test_cnn))
+
+        elif choice == "2":
+            label = ["Linear Grayscale", "Linear Color", "MLP Gray", "MLP Color", "CNN 2D", "CNN 3D"]
+            print("\n--- Testing Linear Grayscale ---")
+            model_gray_lin = Linear_CIFAR_Gray()
+            train_model(model_gray_lin, train_gray, losses)
+            accuracies.append(test_model(model_gray_lin, test_gray))
+
+            print("\n--- Testing Linear Color ---")
+            model_color_lin = Linear_CIFAR_Color()
+            train_model(model_color_lin, train_color, losses)
+            accuracies.append(test_model(model_color_lin, test_color))
+
+            print("\n--- Testing MLP Grayscale ---")
+            model_gray_mlp = MLP_CIFAR_Gray()
+            train_model(model_gray_mlp, train_gray, losses)
+            accuracies.append(test_model(model_gray_mlp, test_gray))
+
+            print("\n--- Testing MLP Color ---")
+            model_color_mlp = MLP_CIFAR_Color()
+            train_model(model_color_mlp, train_color, losses)
+            accuracies.append(test_model(model_color_mlp, test_color))
+
+            print("\n--- Testing CNN ---")
+            cnn_model = CIFAR_CNN()
+            train_model(cnn_model, train_cnn, losses)
+            accuracies.append(test_model(cnn_model, test_cnn))
+
+            print("\n--- Testing CNN 3D ---")
+            cnn_3d_model = CIFAR_CNN_3D()
+            train_model(cnn_3d_model, train_cnn, losses)
+            accuracies.append(test_model(cnn_3d_model, test_cnn))
+        else:
+            print("Invalid choice. Relaunch the script.")
     
-    choice = input("Enter 1 or 2: ")
-
-    if choice == "1":
-        print("\n--- Testing CNN 3D ---")
-        cnn_3d_model = CIFAR_CNN_3D()
-        train_model(cnn_3d_model, train_cnn)
-        test_model(cnn_3d_model, test_cnn)
-
-    elif choice == "2":
-        print("\n--- Testing Linear Grayscale ---")
-        model_gray_lin = Linear_CIFAR_Gray()
-        train_model(model_gray_lin, train_gray)
-        test_model(model_gray_lin, test_gray)
-
-        print("\n--- Testing Linear Color ---")
-        model_color_lin = Linear_CIFAR_Color()
-        train_model(model_color_lin, train_color)
-        test_model(model_color_lin, test_color)
-
-        print("\n--- Testing MLP Grayscale ---")
-        model_gray_mlp = MLP_CIFAR_Gray()
-        train_model(model_gray_mlp, train_gray)
-        test_model(model_gray_mlp, test_gray)
-
-        print("\n--- Testing MLP Color ---")
-        model_color_mlp = MLP_CIFAR_Color()
-        train_model(model_color_mlp, train_color)
-        test_model(model_color_mlp, test_color)
-
-        print("\n--- Testing CNN ---")
-        cnn_model = CIFAR_CNN()
-        train_model(cnn_model, train_cnn)
-        test_model(cnn_model, test_cnn)
-
-        print("\n--- Testing CNN 3D ---")
-        cnn_3d_model = CIFAR_CNN_3D()
-        train_model(cnn_3d_model, train_cnn)
-        test_model(cnn_3d_model, test_cnn)
-    else:
-        print("Invalid choice. Relaunch the script.")
+    plt.figure()
+    fig, axs = plt.subplots(1, 2) # Loss progression for each combined in one graph + wrong ones similarities
+    axs[0].plot(np.arange(0, 5, 1), losses[0], linestyle="dashdot", color="red", marker="+")
+    if len(label) != 1: # Depending on the choice of analysis in the main program, plots the additional losses
+        axs[0].plot(np.arange(0, 5, 1), losses[1], linestyle="dashdot", color="purple", marker="+")
+        axs[0].plot(np.arange(0, 5, 1), losses[2], linestyle="dashdot", color="blue", marker="+")
+        axs[0].plot(np.arange(0, 5, 1), losses[3], linestyle="dashdot", color="pink", marker="+")
+        axs[0].plot(np.arange(0, 5, 1), losses[4], linestyle="dashdot", color="black", marker="+")
+        axs[0].plot(np.arange(0, 5, 1), losses[5], linestyle="dashdot", color="green", marker="+")
+    axs[0].set_title("Loss progression during epochs (Layer Study)")
+    axs[0].set_ylabel("Total loss (u.a.)")
+    axs[0].set_xlabel("Epoch number")
+    axs[0].legend(label)
+    axs[0].set_xticks(np.arange(0, 5, 1)) # Show every epoch in x axis
+    axs[1].bar(np.arange(0, len(label)), accuracies, width=0.4)
+    axs[1].set_xticks(np.arange(0, len(label)), label)
+    axs[1].legend(["Accuracy"])
+    axs[1].set_title("Accuracy rate per model (%)")
+    axs[1].set_ylim(0, 100)
+    plt.show()
